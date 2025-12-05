@@ -10,6 +10,7 @@ import connectDB from "./config/db.js";
 import notesRoutes from "./routes/notesRoutes.js";
 import testRoutes from "./routes/testRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
+import filesRoutes from "./routes/filesRoutes.js";
 
 dotenv.config();
 connectDB();
@@ -21,14 +22,15 @@ app.use(express.json());
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Render disk path or local
-const uploadPath = process.env.UPLOAD_PATH || path.join(__dirname, "uploads");
-app.use("/uploads", express.static(uploadPath));
-
+// NOTE: With GridFS you don't need static /uploads serving anymore.
+// If you had it earlier, you can remove or keep it — GridFS routes will be used.
 app.use("/api/notes", notesRoutes);
 app.use("/api/tests", testRoutes);
 
-// Upload API
+// Upload to GridFS
 app.use("/api/upload", uploadRoutes);
+// Serve files from GridFS by filename
+app.use("/files", filesRoutes);
 
-app.listen(5000, () => console.log("Server running on port 5000"));
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
